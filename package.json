@@ -26,6 +26,8 @@
   },
   "dependencies": {
     "@figma/plugin-typings": "^1.22.0",
+    "case": "^1.6.3",
+    "js-convert-case": "^4.1.2",
     "sirv-cli": "^0.4.4"
   }
 }

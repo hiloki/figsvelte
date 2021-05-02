@@ -1,46 +1,54 @@
-// This plugin will open a modal to prompt the user to enter a number, and
-// it will then create that many rectangles on the screen.
+import jsConvert from "js-convert-case";
 
-// This file holds the main code for the plugins. It has access to the *document*.
-// You can access browser APIs in the <script> tag inside "ui.html" which has a
-// full browser enviroment (see documentation).
+// TODO: UIに応じて操作
+// FIXME: replace func when add KebabCase to js-convert-case
+const toKebabCase = (string) =>
+  string
+    .replace(/([a-z])([A-Z])/g, "$1-$2")
+    .replace(/[\s_]+/g, "-")
+    .toLowerCase();
 
-// This shows the HTML page in "ui.html".
-figma.showUI(__html__, {width: 232, height: 208 });
+figma.showUI(__html__, { width: 360, height: 360 });
 
-// Calls to "parent.postMessage" from within the HTML page will trigger this
-// callback. The callback will be passed the "pluginMessage" property of the
-// posted message.
-figma.ui.onmessage = msg => {
-	// One way of distinguishing between different types of messages sent from
-	// your HTML page is to use an object with a "type" property like this.
-	if (msg.type === 'create-shapes') {
+figma.ui.onmessage = (message) => {
+  if (message.type === "rename-layers") {
+    const isSelection = message.data.isSelection;
+    const layers = message.data.layers;
+    const nameConvention = message.data.nameConvention;
 
-		const nodes: SceneNode[] = [];
+    const layerTypes = layers.map((type) => type.toUpperCase());
 
-		for (let i = 0; i < msg.count; i++) {
+    if (layerTypes.includes("COMPONENT")) {
+      layerTypes.push("COMPONENT_SET");
+    }
 
-			var shape;
+    const nodes = isSelection
+      ? figma.currentPage.selection.filter((n) => layerTypes.includes(n.type))
+      : figma.currentPage.findAll((n) => layerTypes.includes(n.type));
 
-			if (msg.shape === 'rectangle') {
-				shape = figma.createRectangle();
-			} else if (msg.shape === 'triangle') {
-				shape = figma.createPolygon();
-			} else {
-				shape = figma.createEllipse();
-			}
+    console.log(nodes);
 
-			shape.x = i * 150;
-			shape.fills = [{type: 'SOLID', color: {r: 1, g: 0.5, b: 0}}];
-			figma.currentPage.appendChild(shape);
-			nodes.push(shape);
-		}
+    for (let node of nodes) {
+      if (node.parent.type !== "COMPONENT_SET") {
+        let name = node.name;
 
-		figma.currentPage.selection = nodes;
-		figma.viewport.scrollAndZoomIntoView(nodes);
-	}
+        switch (nameConvention) {
+          case "camelCase":
+            node.name = jsConvert.toCamelCase(name);
+            break;
+          case "kebabCase":
+            node.name = toKebabCase(name);
+            break;
+          case "snakeCase":
+            node.name = jsConvert.toSnakeCase(name);
+            break;
+          default:
+            node.name = jsConvert.toPascalCase(name);
+            break;
+        }
+      }
+    }
+  }
 
-	// Make sure to close the plugin when you're done. Otherwise the plugin will
-	// keep running, which shows the cancel button at the bottom of the screen.
-	figma.closePlugin();
+  figma.closePlugin("Done");
 };

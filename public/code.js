@@ -560,11 +560,16 @@ const toKebabCase = (string) => string
     .replace(/[\s_]+/g, "-")
     .toLowerCase();
 figma.showUI(__html__, { width: 360, height: 360 });
+let savedData = figma.root.getPluginData("ncv");
+if (savedData)
+    savedData = JSON.parse(savedData);
+figma.ui.postMessage(savedData);
 figma.ui.onmessage = (message) => {
     if (message.type === "rename-layers") {
-        const isSelection = message.data.isSelection;
-        const layers = message.data.layers;
-        const nameConvention = message.data.nameConvention;
+        const data = message.data;
+        const isSelection = data.isSelection;
+        const layers = data.layers;
+        const nameConvention = data.nameConvention.value;
         const layerTypes = layers.map((type) => type.toUpperCase());
         if (layerTypes.includes("COMPONENT")) {
             layerTypes.push("COMPONENT_SET");
@@ -572,7 +577,7 @@ figma.ui.onmessage = (message) => {
         const nodes = isSelection
             ? figma.currentPage.selection.filter((n) => layerTypes.includes(n.type))
             : figma.currentPage.findAll((n) => layerTypes.includes(n.type));
-        console.log(nodes);
+        figma.root.setPluginData("ncv", JSON.stringify(data));
         for (let node of nodes) {
             if (node.parent.type !== "COMPONENT_SET") {
                 let name = node.name;
@@ -595,3 +600,4 @@ figma.ui.onmessage = (message) => {
     }
     figma.closePlugin("Done");
 };
+//# sourceMappingURL=code.js.map

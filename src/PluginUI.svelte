@@ -4,9 +4,8 @@
   import { Button, Label, SelectMenu } from "figma-plugin-ds-svelte";
 
   const layers = ["Component", "Instance", "Frame", "Group"];
-  let selectedLayers = ["Component", "Instance"];
 
-  let menuItems = [
+  let conventionItems = [
     {
       value: "pascalCase",
       label: "Pascal Case: FooBar",
@@ -35,7 +34,21 @@
 
   let disabled = true;
   let onlySelection = false;
-  let nameConvention = "pascalCase";
+  let nameConvention;
+  let selectedLayers = [];
+  let savedData = {};
+
+  onmessage = (event) => {
+    if (event.data.pluginMessage) {
+      savedData = event.data.pluginMessage;
+
+      nameConvention = savedData.nameConvention;
+      selectedLayers = savedData.layers;
+      onlySelection = savedData.isSelection;
+    } else {
+      selectedLayers = ["Component", "Instance"];
+    }
+  };
 
   $: disabled = selectedLayers.length < 1;
 
@@ -45,7 +58,7 @@
         pluginMessage: {
           type: "rename-layers",
           data: {
-            nameConvention: nameConvention.value,
+            nameConvention: nameConvention,
             layers: selectedLayers,
             isSelection: onlySelection,
           },
@@ -62,7 +75,11 @@
 
 <div class="wrapper p-xxsmall">
   <Label>Name convention</Label>
-  <SelectMenu bind:menuItems bind:value={nameConvention} class="mb-xxsmall" />
+  <SelectMenu
+    bind:menuItems={conventionItems}
+    bind:value={nameConvention}
+    class="mb-xxsmall"
+  />
 
   <Label>Layer type</Label>
   <!-- <p class="warning">please check types at least one.</p> -->

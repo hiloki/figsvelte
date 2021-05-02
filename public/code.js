@@ -597,7 +597,6 @@ figma.ui.onmessage = (message) => {
                 }
             }
         }
+        figma.closePlugin(`${nodes.length} layers have renamed to ${nameConvention}`);
     }
-    figma.closePlugin("Done");
 };
-//# sourceMappingURL=code.js.map

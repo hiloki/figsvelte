@@ -44,6 +44,22 @@
 
       nameConvention.selected = false;
       nameConvention = savedData.nameConvention;
+
+      switch (nameConvention.value) {
+        case "camelCase":
+          conventionItems[1] = nameConvention;
+          break;
+        case "kebabCase":
+          conventionItems[2] = nameConvention;
+          break;
+        case "snakeCase":
+          conventionItems[3] = nameConvention;
+          break;
+        default:
+          conventionItems[0] = nameConvention;
+          break;
+      }
+
       selectedLayers = savedData.layers;
       onlySelection = savedData.isSelection;
     } else {

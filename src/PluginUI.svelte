@@ -42,6 +42,7 @@
     if (event.data.pluginMessage) {
       savedData = event.data.pluginMessage;
 
+      nameConvention.selected = false;
       nameConvention = savedData.nameConvention;
       selectedLayers = savedData.layers;
       onlySelection = savedData.isSelection;
